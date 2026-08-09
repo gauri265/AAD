@@ -1,12 +1,26 @@
 @echo off
-call "C:\Program Files (x86)\Microsoft Visual Studio\2022\BuildTools\Common7\Tools\VsDevCmd.bat" -arch=x64 >nul
-cd /d "%~dp1"
 
-cl "%~nx1" /Fe:"%~dpn1.exe"
+set "file=%~1"
+set "dir=%~dp1"
+set "name=%~n1"
 
-if errorlevel 1 exit /b %errorlevel%
+cd /d "%dir%"
 
-"%~dpn1.exe"
+"C:\msys64\ucrt64\bin\gcc.exe" "%file%" -o "%name%.exe"
 
-del "%~dpn1.exe" >nul 2>&1
-del "%~dpn1.obj" >nul 2>&1
+if errorlevel 1 (
+    echo Compilation failed.
+    pause
+    exit /b
+)
+
+echo.
+echo Running %name%.exe...
+echo.
+
+"%name%.exe"
+
+echo.
+echo Program finished.
+
+del /Q "%name%.exe" 2>nul
