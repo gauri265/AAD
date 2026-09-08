@@ -6,7 +6,6 @@ int temp[500000];
 
 void merge(int arr[], int low, int mid, int high)
 {
-    
     int i = low, j = mid + 1, k = low;
 
     while (i <= mid && j <= high)
@@ -16,19 +15,23 @@ void merge(int arr[], int low, int mid, int high)
         else
             temp[k++] = arr[j++];
     }
+
     while (i <= mid)
         temp[k++] = arr[i++];
+
     while (j <= high)
         temp[k++] = arr[j++];
+
     for (i = low; i <= high; i++)
         arr[i] = temp[i];
-}                                                                                                                                                                                                                
+}
 
 void mergeSort(int arr[], int low, int high)
 {
     if (low < high)
     {
         int mid = (low + high) / 2;
+
         mergeSort(arr, low, mid);
         mergeSort(arr, mid + 1, high);
         merge(arr, low, mid, high);
@@ -42,6 +45,7 @@ void selectionSort(int arr[], int n)
     for (i = 0; i < n - 1; i++)
     {
         min = i;
+
         for (j = i + 1; j < n; j++)
         {
             if (arr[j] < arr[min])
@@ -56,31 +60,83 @@ void selectionSort(int arr[], int n)
 
 int main()
 {
-    int sizes[] = {1000,2000,5000,7000,10000,50000,500000};
+    int sizes[] = {1000, 2000, 5000, 7000, 10000, 50000, 500000};
     int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
-    printf("n\tMerge Sort(s)\tSelection Sort(s)\n");
+
+    /* ---------------- MERGE SORT ---------------- */
+
+    printf("MERGE SORT:\n\n");
+
     for (int s = 0; s < num_sizes; s++)
     {
         int n = sizes[s];
+
+        printf("Test Case %d (Array with %d elements)\n",
+               s + 1, n);
+
         int *arr1 = (int *)malloc(n * sizeof(int));
-        int *arr2 = (int *)malloc(n * sizeof(int));
-        for (int i = 0; i < n; i++)
+
+        if (arr1 == NULL)
         {
-            arr1[i] = n - i;
-            arr2[i] = arr1[i];
+            printf("Memory allocation failed.\n");
+            return 1;
         }
+
+        /* Generate array in descending order */
+        for (int i = 0; i < n; i++)
+            arr1[i] = n - i;
+
         clock_t start = clock();
+
         mergeSort(arr1, 0, n - 1);
+
         clock_t stop = clock();
-        double mergeTime = (double)(stop - start) / CLOCKS_PER_SEC;
-        start = clock();
-        selectionSort(arr2, n);
-        stop = clock();
-        double selectionTime = (double)(stop - start) / CLOCKS_PER_SEC;
-        printf("%d\t%f\t%f\n", n, mergeTime, selectionTime);
+
+        double mergeTime =
+            (double)(stop - start) / CLOCKS_PER_SEC;
+
+        printf("Time taken = %.6f seconds\n\n", mergeTime);
+
         free(arr1);
+    }
+
+
+    /* ---------------- SELECTION SORT ---------------- */
+
+    printf("\nSELECTION SORT:\n\n");
+
+    for (int s = 0; s < num_sizes; s++)
+    {
+        int n = sizes[s];
+
+        printf("Test Case %d (Array with %d elements)\n",
+               s + 1, n);
+
+        int *arr2 = (int *)malloc(n * sizeof(int));
+
+        if (arr2 == NULL)
+        {
+            printf("Memory allocation failed.\n");
+            return 1;
+        }
+
+        /* Generate array in descending order */
+        for (int i = 0; i < n; i++)
+            arr2[i] = n - i;
+
+        clock_t start = clock();
+
+        selectionSort(arr2, n);
+
+        clock_t stop = clock();
+
+        double selectionTime =
+            (double)(stop - start) / CLOCKS_PER_SEC;
+
+        printf("Time taken = %.6f seconds\n\n", selectionTime);
+
         free(arr2);
     }
+
     return 0;
 }
-

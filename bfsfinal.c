@@ -213,7 +213,7 @@ int main()
     clock_t start, stop;
 
     //readEdgeList("graph6_edgelist.txt");
-    readAdjMatrix("graph2_adj.txt");
+    readAdjMatrix("graph1_adj.txt");
 
     start = clock();
 

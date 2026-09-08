@@ -2,85 +2,148 @@
 #include <stdlib.h>
 #include <time.h>
 
-int temp[500000];
 
-void merge(int arr[], int low, int mid, int high)
+#define WHITE 0
+#define GRAY  1
+#define BLACK 2
+
+int **adj;
+int *color;
+int *pred;
+int *discover;
+int *finish;
+int vertices;
+int Time;
+
+void DFSVisit(int u)
 {
-    
-    int i = low, j = mid + 1, k = low;
-
-    while (i <= mid && j <= high)
-    {
-        if (arr[i] <= arr[j])
-            temp[k++] = arr[i++];
-        else
-            temp[k++] = arr[j++];
+    color[u] = GRAY;
+    if(u<10){
+    printf("%d ",u);
     }
-    while (i <= mid)
-        temp[k++] = arr[i++];
-    while (j <= high)
-        temp[k++] = arr[j++];
-    for (i = low; i <= high; i++)
-        arr[i] = temp[i];
-}                                                                                                                                                                                                                
+    discover[u] = ++Time;
 
-void mergeSort(int arr[], int low, int high)
-{
-    if (low < high)
+    for (int v = 0; v < vertices; v++)
     {
-        int mid = (low + high) / 2;
-        mergeSort(arr, low, mid);
-        mergeSort(arr, mid + 1, high);
-        merge(arr, low, mid, high);
-    }
-}
-
-void selectionSort(int arr[], int n)
-{
-    int i, j, min, temp;
-
-    for (i = 0; i < n - 1; i++)
-    {
-        min = i;
-        for (j = i + 1; j < n; j++)
+        if (adj[u][v] && color[v] == WHITE)
         {
-            if (arr[j] < arr[min])
-                min = j;
+            pred[v] = u;
+            DFSVisit(v);
         }
+    }
 
-        temp = arr[i];
-        arr[i] = arr[min];
-        arr[min] = temp;
+    color[u] = BLACK;
+    finish[u] = ++Time;
+}
+
+void DFS()
+{
+    color = (int *)malloc(vertices * sizeof(int));
+    pred = (int *)malloc(vertices * sizeof(int));
+    discover = (int *)malloc(vertices * sizeof(int));
+    finish = (int *)malloc(vertices * sizeof(int));
+
+    for (int i = 0; i < vertices; i++)
+    {
+        color[i] = WHITE;
+        pred[i] = -1;
+        discover[i] = 0;
+        finish[i] = 0;
+    }
+
+    Time = 0;
+
+    for (int i = 0; i < vertices; i++)
+    {
+        if (color[i] == WHITE)
+        {
+            DFSVisit(i);
+        }
     }
 }
+
+void readEdgeList(const char *filename)
+{
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        printf("Cannot open %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
+    if (fscanf(file, "%d", &vertices) != 1)
+    {
+        printf("Invalid file format.\n");
+        exit(EXIT_FAILURE);
+    }
+    adj = (int **)malloc(vertices * sizeof(int *));
+    for (int i = 0; i < vertices; i++)
+    {
+        adj[i] = (int *)calloc(vertices, sizeof(int));
+    }
+    int u, v;
+    while (fscanf(file, "%d %d", &u, &v) == 2)
+    {
+        if (u >= 0 && u < vertices && v >= 0 && v < vertices)
+        {
+            adj[u][v] = 1;
+       
+        }
+    }
+    fclose(file);
+}
+
+
+void readAdjMatrix(const char *filename)
+{
+    FILE *file = fopen(filename, "r");
+    if (file == NULL)
+    {
+        printf("Cannot open %s\n", filename);
+        exit(EXIT_FAILURE);
+    }
+    if (fscanf(file, "%d", &vertices) != 1)
+    {
+        printf("Invalid file format.\n");
+        exit(EXIT_FAILURE);
+    }
+    adj = (int **)malloc(vertices * sizeof(int *));
+    for (int i = 0; i < vertices; i++)
+    {
+        adj[i] = (int *)malloc(vertices * sizeof(int));
+        for (int j = 0; j < vertices; j++)
+        {
+            fscanf(file, "%d", &adj[i][j]);
+        }
+    }
+    fclose(file);
+}
+
+
+void freeGraph()
+{
+    for (int i = 0; i < vertices; i++)
+        free(adj[i]);
+        
+    free(adj);
+    free(color);
+    free(pred);
+    free(discover);
+    free(finish);
+}
+
 
 int main()
 {
-    int sizes[] = {1000,2000,5000,7000,10000,50000,500000};
-    int num_sizes = sizeof(sizes) / sizeof(sizes[0]);
-    printf("n\tMerge Sort(s)\tSelection Sort(s)\n");
-    for (int s = 0; s < num_sizes; s++)
-    {
-        int n = sizes[s];
-        int *arr1 = (int *)malloc(n * sizeof(int));
-        int *arr2 = (int *)malloc(n * sizeof(int));
-        for (int i = 0; i < n; i++)
-        {
-            arr1[i] = n - i;
-            arr2[i] = arr1[i];
-        }
-        clock_t start = clock();
-        mergeSort(arr1, 0, n - 1);
-        clock_t stop = clock();
-        double mergeTime = (double)(stop - start) / CLOCKS_PER_SEC;
-        start = clock();
-        selectionSort(arr2, n);
-        stop = clock();
-        double selectionTime = (double)(stop - start) / CLOCKS_PER_SEC;
-        printf("%d\t%f\t%f\n", n, mergeTime, selectionTime);
-        free(arr1);
-        free(arr2);
-    }
+    clock_t start, stop;
+    readEdgeList("graph4_directed_edgelist.txt");
+    //readAdjMatrix("graph1_adj.txt");
+    start = clock();
+    DFS();
+    stop = clock();
+    double elapsed = (double)(stop - start) / CLOCKS_PER_SEC;
+    printf("\nExecution Time = %.6f seconds\n", elapsed);\
+    freeGraph();
     return 0;
 }
 
+ 
